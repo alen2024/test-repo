@@ -3,6 +3,10 @@ name: Build Gradle project
 on:
   push:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-gradle-project:
     runs-on: ubuntu-latest
