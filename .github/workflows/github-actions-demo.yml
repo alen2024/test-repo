@@ -11,6 +11,11 @@ jobs:
   build-gradle-project:
     runs-on: ubuntu-latest
     steps:
+      - id: cache-key
+        run: |
+          echo "::set-output name=month::$(TZ=Asia/Tokyo date +%m)"
+          echo "::set-output name=week::$(TZ=Asia/Tokyo date +%W)"
+          echo "::set-output name=day::$(TZ=Asia/Tokyo date +%d)"
       - uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -21,5 +26,21 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Run Build With Gradle Wrapper
         run: ./gradlew build
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches/jars-*
+            ~/.gradle/caches/transforms-*
+            ~/.gradle/caches/modules-*
+          key: gradle-dependencies-${{ steps.cache-key.outputs.week }}-${{ hashFiles('gradle/libs.versions.toml', '**/*.gradle.kts', 'buildSrc/**/*.{kt,kts}') }}
+          restore-keys: gradle-dependencies-${{ steps.cache-key.outputs.week }}-
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches/build-cache-*
+            ~/.gradle/caches/[0-9]*.*
+            .gradle
+          key: ${{ runner.os }}-gradle-build-${{ github.workflow }}-${{ steps.cache-key.outputs.month }}-${{ steps.cache-key.outputs.day }}
+          restore-keys: ${{ runner.os }}-gradle-build-${{ github.workflow }}-
       - name: Run Gradle test
         run: ./gradlew test
