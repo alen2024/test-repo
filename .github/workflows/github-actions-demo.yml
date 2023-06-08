@@ -1,18 +1,48 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [ push ]
+name: Build Gradle project
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  Explore-GitHub-Actions:
+  build-gradle-project:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+      - id: cache-key
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          echo "::set-output name=month::$(TZ=Asia/Tokyo date +%m)"
+          echo "::set-output name=week::$(TZ=Asia/Tokyo date +%W)"
+          echo "::set-output name=day::$(TZ=Asia/Tokyo date +%d)"
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches/jars-*
+            ~/.gradle/caches/transforms-*
+            ~/.gradle/caches/modules-*
+          key: gradle-dependencies-${{ steps.cache-key.outputs.week }}-${{ hashFiles('gradle/libs.versions.toml', '**/*.gradle.kts', 'buildSrc/**/*.{kt,kts}') }}
+          restore-keys: gradle-dependencies-${{ steps.cache-key.outputs.week }}-
+      - name: Cache Build
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches/build-cache-*
+            ~/.gradle/caches/[0-9]*.*
+            .gradle
+          key: ${{ runner.os }}-gradle-build-${{ github.workflow }}-${{ steps.cache-key.outputs.month }}-${{ steps.cache-key.outputs.day }}
+          restore-keys: ${{ runner.os }}-gradle-build-${{ github.workflow }}-
+      - name: Run Build With Gradle Wrapper
+        run: ./gradlew build
+      - name: Run Gradle test
+        run: ./gradlew test
