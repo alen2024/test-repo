@@ -1,7 +1,10 @@
 name: Cleanup-Cache
 on:
   pull_request:
+    types:
+      - closed
 
+## https://github.com/hankei6km/test-cleanup-caches-by-branch/blob/main/.github/workflows/cleanup.yml
 permissions:
   actions: write
 
@@ -30,4 +33,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+          BRANCH: ${{ github.head_ref }}
