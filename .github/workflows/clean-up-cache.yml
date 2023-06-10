@@ -2,6 +2,9 @@ name: Cleanup-Cache
 on:
   pull_request:
 
+permissions:
+  actions: write
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
