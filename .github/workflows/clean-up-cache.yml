@@ -1,6 +1,10 @@
 name: cleanup caches by a branch
 on:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: write
 
 jobs:
   cleanup:
@@ -22,10 +26,8 @@ jobs:
           ## Setting this to not fail the workflow while deleting cache keys. 
           set +e
           echo "Deleting caches..."
-          echo $cacheKeysForPR
           for cacheKey in $cacheKeysForPR
           do
-              echo $cacheKey
               gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
           done
           echo "Done"
