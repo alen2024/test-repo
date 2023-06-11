@@ -6,6 +6,12 @@ on:
     types:
       - opened
 
+env:
+  AWS_REGION: 'us-east-1'
+  AWS_S3_BUCKET: 'dev-for-cicd'
+  SOURCE_DIR: '.'
+  DEST_DIR: 'dir'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
