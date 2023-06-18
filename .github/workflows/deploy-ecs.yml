@@ -5,7 +5,7 @@ on:
       - develop
 
 env:
-  AWS_REGION: 'us-east-1'                     # set this to your preferred AWS region, e.g. us-west-1
+  AWS_REGION: 'ap-northeast-1'                     # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: 'my-public-ecr'           # set this to your Amazon ECR repository name
   ECS_SERVICE: 'demo-ecs-service'                 # set this to your Amazon ECS service name
   ECS_CLUSTER: 'demo-cluster'                 # set this to your Amazon ECS cluster name
@@ -28,9 +28,14 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/${{secrets.AWS_ROLE_NAME}}
           aws-region: ${{env.AWS_REGION}}
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      #      - name: Login to Amazon ECR
+      #        id: login-ecr
+      #        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: public
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -41,7 +46,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build a docker container and
