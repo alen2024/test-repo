@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class HelloService {
-	fun get(): HelloResponse {
-		return HelloResponse(id = 1L, name = "Alen")
-	}
+    fun get(): HelloResponse {
+        val temp = HelloResponse(id = 1L, name = "Alen")
+        println(temp)
+        return temp
+    }
 }
