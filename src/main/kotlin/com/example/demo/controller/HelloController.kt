@@ -13,5 +13,5 @@ class HelloController(private val helloService: HelloService) {
     fun getAllPlayers(): HelloResponse = helloService.get()
 
     @GetMapping
-    fun getAllPlayers1(): HelloResponse = helloService.get()
+    fun getAllPlayers2(): HelloResponse = helloService.get()
 }
