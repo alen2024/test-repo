@@ -11,4 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class HelloController(private val helloService: HelloService) {
     @GetMapping
     fun getAllPlayers(): HelloResponse = helloService.get()
+
+    @GetMapping
+    fun getAllPlayers2(): HelloResponse = helloService.get()
 }
