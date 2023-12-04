@@ -7,6 +7,6 @@ import org.springframework.boot.runApplication
 class DemoApplication
 
 fun main(args: Array<String>) {
-    println("develop_r3")
+    println("master_r2")
     runApplication<DemoApplication>(*args)
 }
